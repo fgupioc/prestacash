@@ -81,7 +81,7 @@ class _RegisterPayScreenState extends State<RegisterPayScreen> {
 
       if (!mounted) return;
       MyLoader.hide(context);
-      await MyAlert.success(context,  'Cliente registrado correctamente');
+      await MyAlert.success(context,  'Pago registrado correctamente');
 
       if (!mounted) return;
       Navigator.of(context).pop(true);

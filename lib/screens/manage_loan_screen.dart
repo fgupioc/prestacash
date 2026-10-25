@@ -94,29 +94,33 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
       context,
       message: _isEdit ? 'Actualizando préstamo...' : 'Registrando préstamo...',
     );
-    // Aquí iría la lógica para guardar el préstamo
-    await Future.delayed(const Duration(seconds: 2)); // Simulación de guardado
-
     setState(() => _saving = false);
 
     LoanReqDto loanSave = LoanReqDto(
       customerId: socioSeleccionado!.id,
       amount: double.parse(_amountCtrl.text.trim()),
       interest: double.parse(_interestCtrl.text.trim()),
-      initDate: _dateInitCtrl.text.trim(),
+      initDate: formatDate(_dateInitCtrl.text),
       plazo: int.parse(_plazoCtrl.text.trim()),
       aplicacionInterest: _aplicaInteres,
     );
-    debugPrint('STATUS: ${loanSave.toString()}');
 
-    if (!mounted) return;
-    MyLoader.hide(context);
-    await MyAlert.success(
-      context,
-      _isEdit ? 'Préstamo actualizado correctamente' : 'Préstamo registrado correctamente',
-    );
-    if (!mounted) return;
-    Navigator.of(context).pop(true);
+    try {
+      await loanService.create(loanSave);
+
+      if (!mounted) return;
+      MyLoader.hide(context);
+      await MyAlert.success(context,  'Préstamo registrado correctamente');
+
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      MyLoader.hide(context);
+      MyAlert.error(context, e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override

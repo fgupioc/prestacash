@@ -73,8 +73,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _fab() {
     return FloatingActionButton(
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ManageLoanScreen()));
+      onPressed: () async {
+        final created = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ManageLoanScreen(),
+          ),
+        );
       },
       shape: const CircleBorder(),
       backgroundColor: AppColors.azulMarino,
