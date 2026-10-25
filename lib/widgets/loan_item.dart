@@ -61,7 +61,7 @@ class _LoanItemState extends State<LoanItem> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.loan.customer.name,
+                          widget.loan.customer?.name ?? '',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,

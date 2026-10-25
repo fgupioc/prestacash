@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prestacash/features/auth/data/services.dart';
 import 'package:prestacash/models/cuota.dart';
 import 'package:prestacash/screens/manage_loan_screen.dart';
-import 'package:prestacash/screens/register_pay.dart';
+import 'package:prestacash/screens/register_pay_screen.dart';
 import 'package:prestacash/widgets/build_skeleton.dart';
 
 import '../core/constants.dart';
@@ -89,7 +89,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.loan.customer.name,
+                            widget.loan.customer?.name ?? '',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -97,7 +97,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                             ),
                           ),
                           Text(
-                            widget.loan.customer.phone ?? '',
+                            widget.loan.customer?.phone ?? '',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -190,11 +190,16 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      final created = await Navigator.push<bool>(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterPay()),
+                        MaterialPageRoute(
+                          builder: (context) => RegisterPayScreen(loan: widget.loan),
+                        ),
                       );
+                      if (created == true) {
+                        _refresh();
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(55.0),

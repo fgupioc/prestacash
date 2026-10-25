@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prestacash/features/auth/data/payment_service.dart';
 
 import '../../../core/auth/token_storage.dart';
 import '../../../core/network/api_client.dart';
@@ -13,6 +14,7 @@ late final ApiClient apiClient;
 late final AuthService authService;
 late final CustomerService customerService;
 late final LoanService loanService;
+late final PaymentService paymentService;
 
 void setupServices() {
   apiClient = ApiClient(
@@ -26,4 +28,5 @@ void setupServices() {
   authService = AuthService(apiClient);
   customerService = CustomerService(apiClient);
   loanService = LoanService(apiClient);
+  paymentService = PaymentService(apiClient);
 }

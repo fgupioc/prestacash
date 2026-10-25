@@ -9,7 +9,8 @@ class Loan {
   final String loanDate;
   final int plazo;
   final LoanStatus status;
-  final Customer customer;
+  final Customer? customer;
+  final int? customerId;
 
   Loan({
     required this.id,
@@ -19,7 +20,8 @@ class Loan {
     required this.loanDate,
     required this.plazo,
     required this.status,
-    required this.customer,
+    this.customer,
+    this.customerId,
   });
 
   factory Loan.fromJson(Map<String, dynamic> json) => Loan(
@@ -30,7 +32,8 @@ class Loan {
         loanDate: json['loanDate'] ?? '',
         plazo: json['plazo'] ?? 0,
         status: LoanStatus.fromJson(json['status']),
-        customer: Customer.fromJson(json['customer']),
+        customer: json['customer'] != null ? Customer.fromJson(json['customer']) : null,
+        customerId: json['customerId'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -41,10 +44,11 @@ class Loan {
         'loanDate': loanDate,
         'plazo': plazo,
         'status': status.toString().split('.').last,
-        'customer': customer.toJson(),
+        'customer': customer?.toJson(),
+        'customerId': customerId,
       };
 
   String toString() {
-    return 'Loan{id: $id, amount: $amount, interest: $interest, interestApplications: $interestApplications, loanDate: $loanDate, plazo: $plazo, status: $status, customer: ${customer.toString()}}';
+    return 'Loan{id: $id, amount: $amount, interest: $interest, interestApplications: $interestApplications, loanDate: $loanDate, plazo: $plazo, status: $status, customer: ${customer.toString()}, customerId: $customerId}';
   }
 }

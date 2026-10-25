@@ -8,6 +8,7 @@ import 'package:prestacash/widgets/my_alert.dart';
 import 'package:prestacash/widgets/my_input_field.dart';
 import 'package:prestacash/widgets/my_label_field.dart';
 
+import '../core/formatters.dart';
 import '../features/auth/data/services.dart';
 import '../widgets/my_date_field.dart';
 import '../widgets/my_loader.dart';
@@ -43,8 +44,16 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
   void initState() {
     super.initState();
     _dateInitCtrl.text = MyDateField.format(_fechaPago!);
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCustomers());
+  }
+
+  @override
+  void dispose() {
+    _amountCtrl.dispose();
+    _interestCtrl.dispose();
+    _dateInitCtrl.dispose();
+    _plazoCtrl.dispose();
+    super.dispose();
   }
 
   String? _required(String? v) =>
@@ -328,25 +337,5 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
         ),
       ),
     );
-  }
-
-  String? validateAmount(String? v) {
-    final t = v?.trim() ?? '';
-    if (t.isEmpty) return 'Ingrese un monto';
-
-    if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(t)) {
-      return 'Monto inválido (ej: 1500 o 1500.50)';
-    }
-
-    final monto = double.tryParse(t);
-    if (monto == null) return 'Monto inválido';
-    if (monto <= 0) return 'El monto debe ser mayor a 0';
-
-    const min = 1.0;
-    const max = 100000.0;
-    if (monto < min) return 'Monto mínimo: S/ ${min.toStringAsFixed(0)}';
-    if (monto > max) return 'Monto máximo: S/ ${max.toStringAsFixed(0)}';
-
-    return null;
   }
 }
