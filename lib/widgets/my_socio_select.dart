@@ -1,11 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:prestacash/core/constants.dart';
-import 'package:prestacash/models/socio.dart';
+import 'package:prestacash/models/customer.dart';
+import 'package:prestacash/models/customer.dart';
 
 class MySocioSelect extends StatefulWidget {
-  final List<Socio> socios;
-  final ValueChanged<Socio?> onChanged;
+  final List<Customer> socios;
+  final ValueChanged<Customer?> onChanged;
 
   const MySocioSelect({
     super.key,
@@ -23,7 +24,7 @@ class _MySocioSelectState extends State<MySocioSelect> {
 
   final FocusNode _focusNode = FocusNode();
 
-  Socio? _socioSeleccionado;
+  Customer? _socioSeleccionado;
   bool _limpiando = false;
 
   @override
@@ -51,15 +52,15 @@ class _MySocioSelectState extends State<MySocioSelect> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return RawAutocomplete<Socio>(
+        return RawAutocomplete<Customer>(
           textEditingController: _controller,
           focusNode: _focusNode,
 
-          displayStringForOption: (socio) => socio.nombre,
+          displayStringForOption: (socio) => socio.fullName,
 
           optionsBuilder: (value) {
             if (_limpiando || _socioSeleccionado != null) {
-              return const Iterable<Socio>.empty();
+              return const Iterable<Customer>.empty();
             }
 
             final query = value.text.toLowerCase().trim();
@@ -69,10 +70,10 @@ class _MySocioSelectState extends State<MySocioSelect> {
             }
 
             return widget.socios.where((socio) {
-              return socio.nombre
+              return socio.fullName
                   .toLowerCase()
                   .contains(query) ||
-                  socio.dni.contains(query);
+                  socio.documentNumber.contains(query);
             });
           },
 
@@ -212,7 +213,7 @@ class _MySocioSelectState extends State<MySocioSelect> {
                             AppColors.celesteClaro,
 
                             child: Text(
-                              socio.nombre[0].toUpperCase(),
+                              socio.fullName[0].toUpperCase(),
                               style: const TextStyle(
                                 color: AppColors.azulMarino,
                                 fontWeight: FontWeight.bold,
@@ -221,7 +222,7 @@ class _MySocioSelectState extends State<MySocioSelect> {
                           ),
 
                           title: Text(
-                            socio.nombre,
+                            socio.fullName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -230,7 +231,7 @@ class _MySocioSelectState extends State<MySocioSelect> {
                           ),
 
                           subtitle: Text(
-                            'DNI: ${socio.dni}',
+                            'DNI: ${socio.documentNumber}',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.azulAcero,

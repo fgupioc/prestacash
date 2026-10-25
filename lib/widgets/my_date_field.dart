@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
-
-import '../core/constants.dart';
+import 'package:prestacash/core/constants.dart';
 
 class MyDateField extends StatelessWidget {
-  final String hint;
+  final TextEditingController? controller;
+  final String? hint;
   final DateTime? value;
   final ValueChanged<DateTime>? onChanged;
   final DateTime? firstDate;
   final DateTime? lastDate;
   final Widget? prefix;
+  final bool hasError;
+  final String? Function(String?)? validator;
+  final bool enabled;
 
   const MyDateField({
     super.key,
-    required this.hint,
+    this.controller,
+    this.hint,
     this.value,
     this.onChanged,
     this.firstDate,
     this.lastDate,
     this.prefix,
+    this.hasError = false,
+    this.validator,
+    this.enabled = true,
   });
 
-  String _format(DateTime d) {
+  static String format(DateTime d) {
     final dd = d.day.toString().padLeft(2, '0');
     final mm = d.month.toString().padLeft(2, '0');
     return '$dd/$mm/${d.year}';
   }
 
   Future<void> _pickDate(BuildContext context) async {
-    FocusScope.of(context).unfocus(); // cierra el teclado si estaba abierto
+    FocusScope.of(context).unfocus();
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -43,47 +50,45 @@ class MyDateField extends StatelessWidget {
         child: child!,
       ),
     );
-    if (picked != null) onChanged?.call(picked);
+    if (picked != null) {
+      controller?.text = format(picked);
+      onChanged?.call(picked);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: AppInput.height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppInput.radius),
-        boxShadow: const [AppShadow.soft],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppInput.radius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onChanged == null ? null : () => _pickDate(context),
-          child: Padding(
-            padding: EdgeInsets.only(left: prefix == null ? 16 : 0, right: 12),
-            child: Row(
-              children: [
-                if (prefix != null) prefix!,
-                Expanded(
-                  child: Text(
-                    value != null ? _format(value!) : hint,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: value != null ? Colors.black87 : AppColors.azulMarino,
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 20,
-                  color: AppColors.azulMarino,
-                ),
-              ],
-            ),
-          ),
+    final errorColor = Colors.red.shade700;
+    final borderColor = hasError ? errorColor : Colors.grey.shade300;
+    final focusColor = hasError ? errorColor : AppColors.azulMarino;
+
+    OutlineInputBorder border(Color color, [double width = 1]) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(color: color, width: width),
+    );
+
+    return TextFormField(
+      controller: controller,
+      readOnly: true,
+      enabled: enabled,
+      validator: validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onTap: () => _pickDate(context),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: prefix,
+        prefixIconColor: hasError ? errorColor : null,
+        suffixIcon: Icon(
+          Icons.calendar_today_outlined,
+          size: 20,
+          color: hasError ? errorColor : AppColors.azulMarino,
         ),
+        errorStyle: TextStyle(color: errorColor, fontSize: 12),
+        enabledBorder: border(borderColor),
+        focusedBorder: border(focusColor, 1.5),
+        errorBorder: border(errorColor),
+        focusedErrorBorder: border(errorColor, 1.5),
+        disabledBorder: border(Colors.grey.shade200),
       ),
     );
   }
