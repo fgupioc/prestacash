@@ -7,6 +7,8 @@ import '../core/constants.dart';
 import '../features/auth/data/customer_service.dart';
 import '../features/auth/data/services.dart';
 import '../widgets/app_bar_nav.dart';
+import '../widgets/my_alert.dart';
+import '../widgets/my_loader.dart';
 
 class ManageCustomerScreen extends StatefulWidget {
   const ManageCustomerScreen({super.key});
@@ -39,8 +41,10 @@ class _ManageCustomerScreenState extends State<ManageCustomerScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _saving = true);
+    MyLoader.show(context, message: 'Registrando cliente...');
+
     try {
-      await _customerService.createCustomer(
+      await customerService.createCustomer(
         documentType: 'DNI',
         documentNumber: _documentCtrl.text.trim(),
         name: _nameCtrl.text.trim(),
@@ -49,25 +53,20 @@ class _ManageCustomerScreenState extends State<ManageCustomerScreen> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Cliente registrado correctamente')));
+      MyLoader.hide(context);
+      await MyAlert.success(context, 'Cliente registrado correctamente');
+      if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: Colors.red,
-        ),
-      );
+      MyLoader.hide(context);
+      MyAlert.error(context, e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
-  String? _required(String? v) =>
-      (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null;
+  String? _required(String? v) => (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null;
 
   @override
   Widget build(BuildContext context) {
