@@ -1,8 +1,5 @@
 // lib/features/customers/data/customer_service.dart
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../models/api_response.dart';
@@ -10,6 +7,7 @@ import '../../../models/customer.dart';
 
 class CustomerService {
   final Dio _dio;
+
   CustomerService(ApiClient client) : _dio = client.dio;
 
   Future<List<Customer>> getCustomers() async {
@@ -21,7 +19,7 @@ class CustomerService {
       */
       final api = ApiResponse<List<Customer>>.fromJson(
         res.data,
-            (data) => (data as List).map((e) => Customer.fromJson(e)).toList(),
+        (data) => (data as List).map((e) => Customer.fromJson(e)).toList(),
       );
 
       if (!api.success) {
@@ -45,18 +43,21 @@ class CustomerService {
     String? address,
   }) async {
     try {
-      final res = await _dio.post('/api/v1/customers', data: {
-        'documentType': documentType,
-        'documentNumber': documentNumber,
-        'name': name,
-        'lastName': lastName,
-        'phone': phone,
-        'address': address,
-      });
+      final res = await _dio.post(
+        '/api/v1/customers',
+        data: {
+          'documentType': documentType,
+          'documentNumber': documentNumber,
+          'name': name,
+          'lastName': lastName,
+          'phone': phone,
+          'address': address,
+        },
+      );
 
       final api = ApiResponse<Customer>.fromJson(
         res.data,
-            (data) => Customer.fromJson(data),
+        (data) => Customer.fromJson(data),
       );
 
       if (!api.success || api.data == null) {
@@ -87,18 +88,21 @@ class CustomerService {
     String? address,
   }) async {
     try {
-      final res = await _dio.put('/api/v1/customers/$id', data: {
-        'documentType': documentType,
-        'documentNumber': documentNumber,
-        'name': name,
-        'lastName': lastName,
-        'phone': phone,
-        'address': address,
-      });
+      final res = await _dio.put(
+        '/api/v1/customers/$id',
+        data: {
+          'documentType': documentType,
+          'documentNumber': documentNumber,
+          'name': name,
+          'lastName': lastName,
+          'phone': phone,
+          'address': address,
+        },
+      );
 
       final api = ApiResponse<Customer>.fromJson(
         res.data,
-            (data) => Customer.fromJson(data),
+        (data) => Customer.fromJson(data),
       );
 
       if (!api.success || api.data == null) {

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:prestacash/core/enum/LoanStatus.dart';
+import 'package:prestacash/models/loan.dart';
 
 import '../core/constants.dart';
 import '../models/loan_model.dart';
+import 'build_status_badge.dart';
 
 class LoanItem extends StatefulWidget {
-  final LoanModel loan;
+  final Loan loan;
   final VoidCallback? onTap;
 
   const LoanItem({super.key, required this.loan, this.onTap});
@@ -58,7 +61,7 @@ class _LoanItemState extends State<LoanItem> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.loan.fullName,
+                          widget.loan.customer.name,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -83,10 +86,10 @@ class _LoanItemState extends State<LoanItem> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildStatusBadge(widget.loan.status),
+                BuildStatusBadge(status: widget.loan.status),
                 SizedBox(height: 4),
                 Text(
-                  widget.loan.date,
+                  widget.loan.loanDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -97,37 +100,6 @@ class _LoanItemState extends State<LoanItem> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color badgeColor;
-    String label;
-
-    switch (status.toLowerCase()) {
-      case 'a':
-        badgeColor = AppColors.success;
-        label = 'Al día';
-        break;
-      case 'v':
-        badgeColor = AppColors.red;
-        label = 'Vencido';
-        break;
-      default:
-        badgeColor = AppColors.secondary;
-        label = 'Desconocido';
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: badgeColor),
       ),
     );
   }

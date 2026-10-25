@@ -13,13 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final items = [
-    LoanModel(fullName: 'Juan Perez', amount: 3200.00, status: 'a', date: '2024/06/01'),
-    LoanModel(fullName: 'Maria Lopez', amount: 1500.00, status: 'v', date: '2024/05/15'),
-    LoanModel(fullName: 'Luis Ramirez', amount: 4000.00, status: 'a', date: '2024/06/05'),
-    LoanModel(fullName: 'Ana Torres', amount: 2500.00, status: 'a', date: '2024/06/10'),
-    LoanModel(fullName: 'Carlos Mendoza', amount: 1800.00, status: 'v', date: '2024/05/20'),
-  ];
+  final items = [];
 
   @override
   Widget build(BuildContext context) {

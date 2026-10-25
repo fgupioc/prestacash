@@ -1,44 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:prestacash/models/cuota_item.dart';
+import 'package:prestacash/features/auth/data/services.dart';
+import 'package:prestacash/models/cuota.dart';
 import 'package:prestacash/screens/manage_loan_screen.dart';
 import 'package:prestacash/screens/register_pay.dart';
+import 'package:prestacash/widgets/build_skeleton.dart';
 
 import '../core/constants.dart';
+import '../core/formatters.dart';
+import '../models/loan.dart';
 import '../widgets/app_bar_nav.dart';
+import '../widgets/build_status_badge.dart';
+import '../widgets/my_loader.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
-  const LoanDetailsScreen({super.key});
+  final Loan loan;
+
+  const LoanDetailsScreen({super.key, required this.loan});
 
   @override
   State<LoanDetailsScreen> createState() => _LoanDetailsScreenState();
 }
 
 class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
-  final items = [
-    CuotaItem(cuota: 1, amount: 3200.00, date: '2024-06-01', status: 'Aprobado'),
-    CuotaItem(cuota: 2, amount: 3200.00, date: '2024-07-01', status: 'Pendiente'),
-    CuotaItem(cuota: 3, amount: 3200.00, date: '2024-08-01', status: 'Pendiente'),
-    CuotaItem(cuota: 4, amount: 3200.00, date: '2024-09-01', status: 'Pendiente'),
-    CuotaItem(cuota: 5, amount: 3200.00, date: '2024-10-01', status: 'Pendiente'),
-    CuotaItem(cuota: 6, amount: 3200.00, date: '2024-11-01', status: 'Pendiente'),
-    CuotaItem(cuota: 1, amount: 3200.00, date: '2024-06-01', status: 'Aprobado'),
-    CuotaItem(cuota: 2, amount: 3200.00, date: '2024-07-01', status: 'Pendiente'),
-    CuotaItem(cuota: 3, amount: 3200.00, date: '2024-08-01', status: 'Pendiente'),
-    CuotaItem(cuota: 4, amount: 3200.00, date: '2024-09-01', status: 'Pendiente'),
-    CuotaItem(cuota: 5, amount: 3200.00, date: '2024-10-01', status: 'Pendiente'),
-    CuotaItem(cuota: 6, amount: 3200.00, date: '2024-11-01', status: 'Pendiente'),
-    CuotaItem(cuota: 1, amount: 3200.00, date: '2024-06-01', status: 'Aprobado'),
-    CuotaItem(cuota: 2, amount: 3200.00, date: '2024-07-01', status: 'Pendiente'),
-    CuotaItem(cuota: 3, amount: 3200.00, date: '2024-08-01', status: 'Pendiente'),
-    CuotaItem(cuota: 4, amount: 3200.00, date: '2024-09-01', status: 'Pendiente'),
-    CuotaItem(cuota: 5, amount: 3200.00, date: '2024-10-01', status: 'Pendiente'),
-    CuotaItem(cuota: 6, amount: 3200.00, date: '2024-11-01', status: 'Pendiente'),
-  ];
+  final items = [];
+  List<Cuota> _cuotas = [];
+  bool _loaded = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCuotas());
+  }
+
+  Future<void> _loadCuotas({bool showLoader = true}) async {
+    if (showLoader) MyLoader.show(context, message: 'Cargando cuotas...');
+    try {
+      final cuotas = await loanService.getCuotas(widget.loan.id);
+      if (!mounted) return;
+
+      setState(() {
+        _cuotas = cuotas;
+        _error = null;
+        _loaded = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loaded = true;
+        _error = e.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (showLoader && mounted) MyLoader.hide(context);
+    }
+  }
+
+  Future<void> _refresh() => _loadCuotas(showLoader: false);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarNav(title: 'Detalles del Préstamo',),
+      appBar: AppBarNav(title: 'Detalles del Préstamo'),
       backgroundColor: Colors.white,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,17 +88,17 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Juan Perez',
-                            style: TextStyle(
+                          Text(
+                            widget.loan.customer.name,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: AppColors.azulNoche,
                             ),
                           ),
-                          const Text(
-                            '950016418',
-                            style: TextStyle(
+                          Text(
+                            widget.loan.customer.phone ?? '',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: AppColors.azulNoche,
@@ -84,21 +106,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.green.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'Aprobado',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.green,
-                          ),
-                        ),
-                      ),
+                      BuildStatusBadge(status: widget.loan.status),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -107,7 +115,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Monto del Préstamo',
                             style: TextStyle(
@@ -118,7 +126,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            '\$3,200.00',
+                            currencyFormatWithSymbol.format(widget.loan.amount),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -129,7 +137,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
+                        children: [
                           Text(
                             'Fecha de Solicitud',
                             style: TextStyle(
@@ -140,7 +148,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            '2024/06/01',
+                            widget.loan.loanDate ?? '',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -171,86 +179,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        alignment: Alignment.topCenter,
-                        child: ListView.builder(
-                          itemCount: items.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemBuilder: (context, index) => Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                            margin: EdgeInsets.symmetric(vertical: 6),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.azulMarino.withValues(alpha: 0.1),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                              color: AppColors.white,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  '1/6',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.azulNoche,
-                                  ),
-                                ),
-                                const Text(
-                                  '12/12/2026',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.gray,
-                                  ),
-                                ),
-                                const Text(
-                                  '159.20',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.gray,
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.green.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    child: Text(
-                                      'Pendiente',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _buildList()),
                 ],
               ),
             ),
@@ -286,7 +215,10 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ManageLoanScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ManageLoanScreen()),
+                      );
                     },
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(55.0),
@@ -309,6 +241,96 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           const SizedBox(height: 14),
         ],
       ),
+    );
+  }
+
+  Container _buildContainer(Cuota cuota) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      margin: EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.azulMarino.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+        color: AppColors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${cuota.cuota}',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.azulNoche,
+            ),
+          ),
+          Text(
+            '${cuota.dueDate}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray,
+            ),
+          ),
+          Text(
+            '${currencyFormat.format(cuota.amount)}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray,
+            ),
+          ),
+          BuildStatusBadge(status: cuota.status),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList() {
+    if (!_loaded) {
+      return BuildSkeleton();
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.azulMarino),
+            ),
+            const SizedBox(height: 8),
+            TextButton(onPressed: () => _loadCuotas(), child: const Text('Reintentar')),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      color: AppColors.azulMarino,
+      child: _cuotas.isEmpty
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                SizedBox(height: 80),
+                Center(child: Text('No hay cuotas registradas')),
+              ],
+            )
+          : ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 20),
+              itemCount: _cuotas.length,
+              itemBuilder: (context, index) => _buildContainer(_cuotas[index]),
+            ),
     );
   }
 }
