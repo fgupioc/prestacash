@@ -138,11 +138,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final initial = item.fullName.isNotEmpty ? item.fullName[0].toUpperCase() : '?';
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final updated = await Navigator.push<bool>(
           context,
-          MaterialPageRoute(builder: (context) => ManageCustomerScreen()),
+          MaterialPageRoute(
+            builder: (context) => ManageCustomerScreen(customer: item),
+          ),
         );
+        if (updated == true) {
+          _loadCustomers();
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),

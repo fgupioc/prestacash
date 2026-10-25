@@ -76,4 +76,62 @@ class CustomerService {
       throw Exception('Error de conexión: ${e.message}');
     }
   }
+
+  Future<Customer> updateCustomer({
+    required int id,
+    required String documentType,
+    required String documentNumber,
+    required String name,
+    required String lastName,
+    String? phone,
+    String? address,
+  }) async {
+    try {
+      final res = await _dio.put('/api/v1/customers/$id', data: {
+        'documentType': documentType,
+        'documentNumber': documentNumber,
+        'name': name,
+        'lastName': lastName,
+        'phone': phone,
+        'address': address,
+      });
+
+      final api = ApiResponse<Customer>.fromJson(
+        res.data,
+            (data) => Customer.fromJson(data),
+      );
+
+      if (!api.success || api.data == null) {
+        throw Exception(api.message ?? 'No se pudo actualizar el cliente');
+      }
+      return api.data!;
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      if (body is Map) {
+        final errors = body['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          throw Exception(errors.values.join('\n'));
+        }
+        if (body['message'] != null) throw Exception(body['message']);
+      }
+      throw Exception('Error de conexión: ${e.message}');
+    }
+  }
+
+  Future<void> deleteCustomer(int id) async {
+    try {
+      final res = await _dio.delete('/api/v1/customers/$id');
+
+      final body = res.data;
+      if (body is Map && body['success'] == false) {
+        throw Exception(body['message'] ?? 'No se pudo eliminar el cliente');
+      }
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      if (body is Map && body['message'] != null) {
+        throw Exception(body['message']);
+      }
+      throw Exception('Error de conexión: ${e.message}');
+    }
+  }
 }
