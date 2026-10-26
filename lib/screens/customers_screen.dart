@@ -15,7 +15,6 @@ class CustomersScreen extends StatefulWidget {
 }
 
 class _CustomersScreenState extends State<CustomersScreen> {
-  late Future<List<Customer>> _future;
   List<Customer> _customers = [];
   String? _error;
   bool _loaded = false;
@@ -25,6 +24,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
     super.initState();
     // Espera a que la pantalla esté dibujada para poder abrir el loader
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCustomers());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _loadCustomers({bool showLoader = true}) async {

@@ -6,6 +6,7 @@ import '../../../core/network/api_client.dart';
 import '../../../screens/login_screen.dart';
 import 'auth_service.dart';
 import 'customer_service.dart';
+import 'dashboard_service.dart';
 import 'loan_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -15,6 +16,7 @@ late final AuthService authService;
 late final CustomerService customerService;
 late final LoanService loanService;
 late final PaymentService paymentService;
+late final DashboardService dashboardService;
 
 void setupServices() {
   apiClient = ApiClient(
@@ -29,4 +31,5 @@ void setupServices() {
   customerService = CustomerService(apiClient);
   loanService = LoanService(apiClient);
   paymentService = PaymentService(apiClient);
+  dashboardService = DashboardService(apiClient);
 }

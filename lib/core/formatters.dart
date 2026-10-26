@@ -1,5 +1,4 @@
 // lib/core/formatters.dart
-import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 final currencyFormat = NumberFormat('#,##0.00', 'en_US');
