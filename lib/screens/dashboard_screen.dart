@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:prestacash/core/constants.dart';
 import 'package:prestacash/screens/customers_screen.dart';
 import 'package:prestacash/screens/home_screen.dart';
@@ -8,6 +10,7 @@ import 'package:prestacash/screens/manage_loan_screen.dart';
 import 'package:prestacash/screens/more_screen.dart';
 import 'package:prestacash/widgets/my_app_bar.dart';
 
+import '../core/auth/token_storage.dart';
 import '../widgets/my_navigation_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,6 +23,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
   final Set<int> _loaded = {0};
+  String _nombre = '';
 
   Widget _buildScreen(int index) {
     switch (index) {
@@ -44,13 +48,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _cargarNombre();
+  }
+
+  Future<void> _cargarNombre() async {
+    final nombre = await TokenStorage().primerNombre; // tu instancia
+    if (!mounted) return;
+    setState(() => _nombre = nombre);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: AppColors.white,
-        appBar: const MyAppBar(nombre: 'Franz'),
+        appBar: MyAppBar(nombre: _nombre),
         body: _buildScreen(_currentIndex),
         /*
         body: IndexedStack(
@@ -76,9 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onPressed: () async {
         final created = await Navigator.push<bool>(
           context,
-          MaterialPageRoute(
-            builder: (context) => const ManageLoanScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const ManageLoanScreen()),
         );
       },
       shape: const CircleBorder(),
