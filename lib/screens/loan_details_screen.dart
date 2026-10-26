@@ -222,7 +222,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ManageLoanScreen()),
+                        MaterialPageRoute(builder: (context) => ManageLoanScreen(loan: widget.loan)),
                       );
                     },
                     style: FilledButton.styleFrom(

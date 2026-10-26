@@ -41,3 +41,16 @@ String formatDate(String date) {
 
   return '$year-$month-$day';
 }
+
+String formatDate2(String date) {
+  final parts = date.split('-');
+  if (parts.length != 3) {
+    throw FormatException('Fecha inválida: $date');
+  }
+
+  final year = parts[0].padLeft(4, '0');
+  final month = parts[1].padLeft(2, '0');
+  final day = parts[2].padLeft(2, '0');
+
+  return '$day/$month/$year';
+}

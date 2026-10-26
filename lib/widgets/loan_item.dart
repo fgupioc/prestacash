@@ -3,6 +3,7 @@ import 'package:prestacash/core/enum/LoanStatus.dart';
 import 'package:prestacash/models/loan.dart';
 
 import '../core/constants.dart';
+import '../core/formatters.dart';
 import '../models/loan_model.dart';
 import 'build_status_badge.dart';
 
@@ -70,7 +71,7 @@ class _LoanItemState extends State<LoanItem> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'S/ ${widget.loan.amount.toStringAsFixed(2)}',
+                          '${currencyFormat.format(widget.loan.amount)}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,

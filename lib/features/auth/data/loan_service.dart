@@ -88,4 +88,39 @@ class LoanService {
     }
   }
 
+  Future<Loan> update(int loanId, LoanReqDto loan) async {
+    try {
+      final res = await _dio.put('/api/v1/loans/$loanId',
+        data: {
+          "amount": loan.amount,
+          "interest": loan.interest,
+          "interestApplications": loan.aplicacionInterest,
+          "loanDate": loan.initDate,
+          "loanStatus": "PENDING",
+          "plazo": loan.plazo,
+          "customerId": loan.customerId,
+        },
+      );
+
+      final api = ApiResponse<Loan>.fromJson(
+        res.data, (data) => Loan.fromJson(data),
+      );
+
+      if (!api.success || api.data == null) {
+        throw Exception(api.message ?? 'No se pudo actualizar el préstamo');
+      }
+      return api.data!;
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      if (body is Map) {
+        final errors = body['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          throw Exception(errors.values.join('\n'));
+        }
+        if (body['message'] != null) throw Exception(body['message']);
+      }
+      throw Exception('Error de conexión: ${e.message}');
+    }
+  }
+
 }

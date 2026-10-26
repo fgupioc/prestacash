@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:prestacash/core/constants.dart';
 import 'package:prestacash/loan_req_dto.dart';
 import 'package:prestacash/models/customer.dart';
+import 'package:prestacash/models/loan.dart';
 import 'package:prestacash/widgets/app_bar_nav.dart';
 import 'package:prestacash/widgets/my_alert.dart';
 import 'package:prestacash/widgets/my_input_field.dart';
@@ -17,7 +18,9 @@ import '../widgets/my_switch_field.dart';
 import 'manage_customer_screen.dart';
 
 class ManageLoanScreen extends StatefulWidget {
-  const ManageLoanScreen({super.key});
+  final Loan? loan;
+
+  const ManageLoanScreen({super.key, this.loan});
 
   @override
   State<ManageLoanScreen> createState() => _ManageLoanScreenState();
@@ -29,7 +32,7 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
   final _interestCtrl = TextEditingController();
   final _dateInitCtrl = TextEditingController();
   final _plazoCtrl = TextEditingController();
-  bool get _isEdit => false;
+  bool get _isEdit => widget.loan != null;
   bool _saving = false;
   bool _selectingCustomer = true;
 
@@ -45,6 +48,17 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
     super.initState();
     _dateInitCtrl.text = MyDateField.format(_fechaPago!);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCustomers());
+    final c = widget.loan;
+    if (c != null) {
+      debugPrint(c.customer.toString());
+      socioSeleccionado = c.customer;
+      debugPrint(socioSeleccionado.toString());
+      _amountCtrl.text = c.amount.toStringAsFixed(2);
+      _interestCtrl.text = c.interest.toStringAsFixed(2);
+      _dateInitCtrl.text = formatDate2(c.loanDate);
+      _plazoCtrl.text = c.plazo.toString();
+      _aplicaInteres = c.interestApplications;
+    }
   }
 
   @override
@@ -106,7 +120,11 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
     );
 
     try {
-      await loanService.create(loanSave);
+      if (_isEdit) {
+        await loanService.update(widget.loan!.id, loanSave);
+      } else {
+        await loanService.create(loanSave);
+      }
 
       if (!mounted) return;
       MyLoader.hide(context);
@@ -182,6 +200,7 @@ class _ManageLoanScreenState extends State<ManageLoanScreen> {
             const SizedBox(height: 16),
             MySocioSelect(
               socios: _customers,
+              initialValue: socioSeleccionado,
               onChanged: (socio) {
                 setState(() {
                   socioSeleccionado = socio;

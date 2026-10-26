@@ -39,4 +39,10 @@ class Customer {
     'phone': phone,
     'address': address,
   };
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'Customer{id: $id, documentType: $documentType, documentNumber: $documentNumber, name: $name, lastName: $lastName, fullName: $fullName, phone: $phone, address: $address}';
+  }
 }

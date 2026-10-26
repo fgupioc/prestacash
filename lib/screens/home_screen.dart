@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               MyCards(
                 icon: Icons.all_inbox_outlined,
-                title: 'Subscription',
+                title: 'Monto',
                 amountColor: AppColors.primary,
                 value: 'S/ 8,000.00',
               ),

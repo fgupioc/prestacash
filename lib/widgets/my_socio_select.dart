@@ -2,16 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:prestacash/core/constants.dart';
 import 'package:prestacash/models/customer.dart';
-import 'package:prestacash/models/customer.dart';
 
 class MySocioSelect extends StatefulWidget {
   final List<Customer> socios;
   final ValueChanged<Customer?> onChanged;
+  final Customer? initialValue;
 
   const MySocioSelect({
     super.key,
     required this.socios,
     required this.onChanged,
+    this.initialValue,
   });
 
   @override
@@ -19,13 +20,17 @@ class MySocioSelect extends StatefulWidget {
 }
 
 class _MySocioSelectState extends State<MySocioSelect> {
-  final TextEditingController _controller =
-  TextEditingController();
-
+  final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
   Customer? _socioSeleccionado;
   bool _limpiando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _aplicarValorInicial(widget.initialValue);
+  }
 
   @override
   void dispose() {
@@ -46,6 +51,22 @@ class _MySocioSelectState extends State<MySocioSelect> {
     _focusNode.unfocus();
 
     _limpiando = false;
+  }
+
+  @override
+  void didUpdateWidget(covariant MySocioSelect oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Por si el valor inicial llega después (ej. carga async)
+    if (widget.initialValue != oldWidget.initialValue &&
+        _socioSeleccionado == null) {
+      _aplicarValorInicial(widget.initialValue);
+    }
+  }
+
+  void _aplicarValorInicial(Customer? socio) {
+    if (socio == null) return;
+    _socioSeleccionado = socio;
+    _controller.text = socio.fullName;
   }
 
   @override
