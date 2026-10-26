@@ -6,10 +6,12 @@ import 'package:prestacash/screens/register_pay_screen.dart';
 import 'package:prestacash/widgets/build_skeleton.dart';
 
 import '../core/constants.dart';
+import '../core/enum/LoanStatus.dart';
 import '../core/formatters.dart';
 import '../models/loan.dart';
 import '../widgets/app_bar_nav.dart';
 import '../widgets/build_status_badge.dart';
+import '../widgets/my_alert.dart';
 import '../widgets/my_loader.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
@@ -56,6 +58,30 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   Future<void> _refresh() => _loadCuotas(showLoader: false);
+
+  Future<void> _cancelLoan({required int loanId}) async {
+    final ok = await MyAlert.confirm(
+      context,
+      title: '¿Seguro que deseas cancelar el préstamo?',
+      text: 'Esta acción no se puede deshacer.',
+    );
+    if (!ok) return;
+
+    MyLoader.show(context, message: 'Cancelando préstamo...');
+    try {
+      final loan = await loanService.cancel(loanId);
+      if (!mounted) return;
+      MyLoader.hide(context);
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) MyLoader.hide(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,66 +210,98 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      final created = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterPayScreen(loan: widget.loan),
+          if (widget.loan.status != LoanStatus.cancelled) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final created = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterPayScreen(loan: widget.loan),
+                          ),
+                        );
+                        if (created == true) {
+                          _refresh();
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(55.0),
+                        foregroundColor: AppColors.azulNoche,
+                        side: const BorderSide(color: AppColors.azulNoche, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                      if (created == true) {
-                        _refresh();
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(55.0),
-                      foregroundColor: AppColors.azulNoche,
-                      side: const BorderSide(color: AppColors.azulNoche, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      child: const Text('Registrar pago'),
                     ),
-                    child: const Text('Registrar pago'),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ManageLoanScreen(loan: widget.loan)),
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(55.0),
-                      backgroundColor: AppColors.azulNoche,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ManageLoanScreen(loan: widget.loan),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(55.0),
+                        backgroundColor: AppColors.azulNoche,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      child: const Text('Editar préstamo'),
                     ),
-                    child: const Text('Editar préstamo'),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        _cancelLoan(loanId: widget.loan.id);
+                      },
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(55.0),
+                        backgroundColor: AppColors.abaco,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      child: const Text('Cancelar préstamo'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
         ],
       ),
     );

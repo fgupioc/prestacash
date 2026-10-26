@@ -170,13 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   final item = d.ultimosPrestamos[index];
                   return LoanItem(
                     loan: item,
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final updated = await Navigator.push<bool>(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => LoanDetailsScreen(loan: item),
-                        ),
+                        MaterialPageRoute(builder: (context) => LoanDetailsScreen(loan: item)),
                       );
+                      if (updated == true) {
+                        _loadDashboard();
+                      }
                     },
                   );
                 },

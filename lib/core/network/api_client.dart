@@ -6,8 +6,8 @@ import 'auth_interceptor.dart';
 
 class ApiClient {
   // Emulador Android: 10.0.2.2 | Dispositivo físico: IP de tu PC en la red local
-  static const baseUrl = 'http://192.168.1.108:9070/api-prestacash';
-  // static const baseUrl = 'http://84.46.248.245:9070/api-prestacash';
+  // static const baseUrl = 'http://192.168.1.108:9070/api-prestacash';
+  static const baseUrl = 'http://84.46.248.245:9070/api-prestacash';
 
   final TokenStorage storage;
   late final Dio dio;

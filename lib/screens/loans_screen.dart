@@ -4,9 +4,7 @@ import 'package:prestacash/models/loan.dart';
 import 'package:prestacash/screens/loan_details_screen.dart';
 import 'package:prestacash/widgets/filter_loan.dart';
 
-import '../core/enum/LoanStatus.dart';
 import '../features/auth/data/services.dart';
-import '../models/loan_model.dart';
 import '../widgets/build_skeleton.dart';
 import '../widgets/loan_item.dart';
 import '../widgets/my_input_field.dart';
@@ -148,10 +146,7 @@ class _LoansScreenState extends State<LoansScreen> {
               style: TextStyle(color: AppColors.azulMarino),
             ),
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => _loadLoans(),
-              child: const Text('Reintentar'),
-            ),
+            TextButton(onPressed: () => _loadLoans(), child: const Text('Reintentar')),
           ],
         ),
       );
@@ -162,18 +157,18 @@ class _LoansScreenState extends State<LoansScreen> {
       color: AppColors.azulMarino,
       child: _loans.isEmpty
           ? ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 80),
-          Center(child: Text('No hay préstamos registrados')),
-        ],
-      )
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                SizedBox(height: 80),
+                Center(child: Text('No hay préstamos registrados')),
+              ],
+            )
           : ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 20),
-        itemCount: _loans.length,
-        itemBuilder: (context, index) => _buildContainer(_loans[index]),
-      ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 20),
+              itemCount: _loans.length,
+              itemBuilder: (context, index) => _buildContainer(_loans[index]),
+            ),
     );
 
     /*
@@ -219,11 +214,15 @@ class _LoansScreenState extends State<LoansScreen> {
 
   GestureDetector _buildContainer(Loan item) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final updated = await Navigator.push<bool>(
           context,
           MaterialPageRoute(builder: (context) => LoanDetailsScreen(loan: item)),
         );
+        debugPrint('LoanDetailsScreen returned: $updated');
+        if (updated == true) {
+          _loadLoans();
+        }
       },
       child: LoanItem(loan: item),
     );
