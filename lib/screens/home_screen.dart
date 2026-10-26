@@ -4,13 +4,13 @@ import 'package:prestacash/models/dashboard.dart';
 import '../core/constants.dart';
 import '../core/formatters.dart';
 import '../features/auth/data/services.dart';
-import '../models/loan_model.dart';
 import '../widgets/loan_item.dart';
 import '../widgets/my_cards.dart';
 import 'loan_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onVerTodos;
+  const HomeScreen({super.key, this.onVerTodos});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -46,9 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _error = msg;
         _loading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: AppColors.red),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppColors.red));
     }
   }
 
@@ -65,10 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(_error ?? 'No se pudo cargar la información'),
             const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _loadDashboard,
-              child: const Text('Reintentar'),
-            ),
+            ElevatedButton(onPressed: _loadDashboard, child: const Text('Reintentar')),
           ],
         ),
       );
@@ -142,9 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {
-        
-                  },
+                  onTap: widget.onVerTodos,
                   child: Row(
                     children: [
                       Text(
@@ -174,12 +168,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(0),
                 itemBuilder: (context, index) {
                   final item = d.ultimosPrestamos[index];
-                  return LoanItem(loan: item, onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoanDetailsScreen(loan: item)),
-                    );
-                  });
+                  return LoanItem(
+                    loan: item,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoanDetailsScreen(loan: item),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ),

@@ -24,7 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildScreen(int index) {
     switch (index) {
       case 0:
-        return const HomeScreen();
+        return HomeScreen(onVerTodos: () => _onBottomNavTap(1));
       case 1:
         return const LoansScreen();
       case 3:
@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 4:
         return const MoreScreen();
       default:
-        return const SizedBox.shrink(); // índice 2: hueco del FAB
+        return const SizedBox.shrink();
     }
   }
 
